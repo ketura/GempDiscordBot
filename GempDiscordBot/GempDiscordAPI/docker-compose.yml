@@ -1,0 +1,30 @@
+﻿version: "3.4"
+
+services:
+
+  build:
+    container_name: gemp_discord_API
+    build: 
+      context: ..
+      dockerfile: GempDiscordAPI/gemp_discord_api.Dockerfile
+    image: gemp_discord_api
+    expose:
+      - "80"
+      - "8080"
+    restart: always
+    ports:
+        # target means in the container
+      - target: 80
+        # published is what's on the host machine
+        published: 8010
+
+    tty: true
+    #command: nohup java -jar /etc/gemp-lotr/gemp-lotr-async/target/web.jar &
+
+
+      
+  
+networks:
+  default:
+    external:
+      name: gemp_1_gemp_net_1

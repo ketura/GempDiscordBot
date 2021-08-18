@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 using Newtonsoft.Json.Converters;
 
@@ -38,10 +39,14 @@ namespace GempDiscordAPI
 					//c.JsonSerializerOptions.Converters.Add(new StringEnumConverter());
 				}); ;
 
-			services.AddSwaggerGen();
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "GEMP / Discord Conversion API GUI", Version = "v1" });
+
+			});
 			services.AddSwaggerGenNewtonsoftSupport();
 
-			var section = Configuration.GetSection(RabbitMQOptions.RabbitMQ).Get<RabbitMQOptions>();
+			//var section = Configuration.GetSection(RabbitMQOptions.RabbitMQ).Get<RabbitMQOptions>();
 			services.Configure<RabbitMQOptions>(x => Configuration.GetSection(RabbitMQOptions.RabbitMQ).Bind(x));
 		}
 
@@ -53,16 +58,23 @@ namespace GempDiscordAPI
 				app.UseDeveloperExceptionPage();
 			}
 
+			app.UseDeveloperExceptionPage();
+
 			app.UseHttpsRedirection();
 
 			// Enable middleware to serve generated Swagger as a JSON endpoint.
-			app.UseSwagger();
+			app.UseSwagger(c =>
+			{
+				c.RouteTemplate = "discord/{documentname}/swagger.json";
+			});
 
 			// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
 			// specifying the Swagger JSON endpoint.
 			app.UseSwaggerUI(c =>
 			{
-				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+				c.SwaggerEndpoint("/discord/v1/swagger.json", "Gemp Discord API V1");
+				c.DocumentTitle = "GEMP / Discord API GUI";
+				c.RoutePrefix = "discord";
 			});
 
 			app.UseRouting();
